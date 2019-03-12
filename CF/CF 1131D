@@ -1,0 +1,207 @@
+#include <bits/stdc++.h>
+#define sz(v)   ((int)(v).size())
+#define  all(v)    ((v).begin()),((v).end())
+#define  allr(v)    ((v).rbegin()),((v).rend())
+#define   pb         push_back
+#define   mp         make_pair
+#define   mt         make_tuple
+//#define   Y            imag()
+//#define   X            real()
+#define    clr(v,d)      memset( v, d ,sizeof(v))
+#define   angle(n)      atan2((n.imag()),(n.real()))
+#define   vec(a,b)       ((b)-(a))
+#define   length(a)      hypot( (a.imag()),(a.real()) )
+#define   normalize(a)      (a)/(length(a))
+//#define    dp(a,b)          (((conj(a))*(b)).real())
+//#define    cp(a,b)          (((conj(a))*(b)).imag())
+#define    lengthsqrt(a)       dp(a,a)
+#define    rotate0( a,ang)    ((a)*exp( point(0,ang) ))
+#define    rotateA(about,p,ang)   (rotate0(vec(about,p),ang)+about)
+#define    lcm(a,b)                ((a*b)/(__gcd(a,b)))
+#define    reflection0(m,v)         (conj((v)/(m))*(m))
+#define     reflectionA(m,v,p0)     (conj( (vec(p0,v))/(vec(p0,m)) ) * (vec(p0,m)) ) + p0
+//#define     same(p1,p2)               ( dp(  vec(p1,p2),vec(p1,p2)) < eps )
+#define     PT                    complex<double>
+#define outfile freopen("out.out", "w", stdout);
+#define infile  freopen("in.in", "r", stdin);
+#define PI acos(-1)
+typedef  long long     ll ;
+typedef  unsigned long long ull;
+const double eps= (1e-9);
+using namespace std;
+int dcmp(long double a,long double b){   return fabsl(a-b)<=eps ? 0: (a>b)? 1:-1  ;}
+int getBit(int num, int idx) {return ((num >> idx) & 1) == 1;}
+int setBit1(int num, int idx) {return num | (1<<idx);}
+ll setBit0(ll num, int idx) {return num & ~(1ll<<idx);}
+ll flipBit(int num, int idx) {return num ^ (1<<idx);}
+void FS(){ ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);}
+int countNumBit1(int mask) {int ret=0; while (mask)     {mask &= (mask-1);++ret;    }return ret;}
+const int N=2009;
+int n,m,str[N],en[N],par[N],rnk[N],timer=1,value[N];
+vector<string> arr;
+vector<vector<int> > v(N);
+vector<int> v1;
+bool vis[N];
+bool checkforcycle(int no)
+{
+    str[no]=timer++;
+    for(int i=0;i<sz(v[no]);i++)
+    {
+        int nw=v[no][i];
+        if(str[nw]==-1)
+        {
+            if(checkforcycle(nw))
+                return 1;
+        }
+        else if(en[nw]==-1)
+        {
+            return 1;
+        }
+
+    }
+    en[no]=timer++;
+    return 0;
+}
+void dfs(int no)
+{
+    vis[no]=1;
+    for(int i=0;i<sz(v[no]);i++)
+    {
+        int nw=v[no][i];
+        if(vis[nw]==0)
+        {
+          dfs(nw);
+          value[no]=max(value[no],value[nw]+1);
+        }
+        else
+        {
+            value[no]=max(value[no],value[nw]+1);
+        }
+    }
+    if(sz(v[no])==0)
+    value[no]=1;
+}
+void I()
+{
+    for(int i=0;i<N;i++)
+        par[i]=i,rnk[i]=1;
+}
+int getpar(int n)
+{
+    if(par[n]==n)
+        return n;
+    return par[n]=getpar(par[n]);
+}
+void lnk(int a,int b)
+{
+    a=getpar(a);
+    b=getpar(b);
+    if(a==b)
+        return ;
+    if(rnk[a]>rnk[b])
+    {
+        rnk[a]+=rnk[b];
+        rnk[b]=0;
+        par[b]=a;
+    }
+    else
+    {
+        rnk[b]+=rnk[a];
+        rnk[a]=0;
+        par[a]=b;
+    }
+}
+int main()
+{
+
+    I();
+    cin>>n>>m;
+    for(int i=0;i<n;i++)
+    {
+        string st;
+        cin>>st;
+        arr.pb(st);
+    }
+
+
+    for(int i=0;i<n;i++)
+    {
+        for(int j=0;j<m;j++)
+        {
+            char ch=arr[i][j];
+            if(ch=='=')
+            {
+                lnk(i,j+n);
+            }
+        }
+    }
+
+    for(int i=0;i<n;i++)
+    {
+        for(int j=0;j<m;j++)
+        {
+            int f=getpar(i);
+            int t=getpar(n+j);
+            char ch=arr[i][j];
+
+            vis[f]++;
+            vis[t]++;
+
+            if(vis[f]==1)
+                v1.pb(f);
+            if(vis[t]==1)
+                v1.pb(t);
+            if(f==t)
+            {
+                if(ch!='=')
+                {
+                    cout<<"NO\n";
+                    return 0;
+                }
+                continue;
+            }
+            if(ch=='>')
+            {
+                v[f].pb(t);
+            }
+            else
+            {
+                v[t].pb(f);
+            }
+        }
+    }
+    clr(str,-1);
+    clr(en,-1);
+    bool ok=0;
+    for(int i=0;i<sz(v1)&&ok==0;i++)
+    {
+        int no=v1[i];
+        if(str[no]==-1)
+          ok|=checkforcycle(no);
+    }
+    if(ok)
+    {
+        cout<<"NO\n";
+        return 0;
+    }
+    clr(vis,0);
+    for(int i=0;i<sz(v1);i++)
+    {
+        int no=v1[i];
+        if(vis[no]==0)
+            dfs(no);
+    }
+    cout<<"YES\n";
+    for(int i=0;i<n;i++)
+    {
+        cout<<value[getpar(i)]<<" ";
+    }
+    cout<<endl;
+    for(int i=0;i<m;i++)
+    {
+        cout<<value[getpar(n+i)]<<" ";
+    }
+    cout<<endl;
+}
+
+
