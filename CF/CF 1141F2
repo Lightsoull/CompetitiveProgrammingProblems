@@ -1,0 +1,153 @@
+#include <bits/stdc++.h>
+#define sz(v)   ((int)(v).size())
+#define  all(v)    ((v).begin()),((v).end())
+#define  allr(v)    ((v).rbegin()),((v).rend())
+#define   pb         push_back
+#define   mp         make_pair
+#define   mt         make_tuple
+//#define   Y            imag()
+//#define   X            real()
+#define    clr(v,d)      memset( v, d ,sizeof(v))
+#define   angle(n)      atan2((n.imag()),(n.real()))
+#define   vec(a,b)       ((b)-(a))
+#define   length(a)      hypot( (a.imag()),(a.real()) )
+#define   normalize(a)      (a)/(length(a))
+//#define    dp(a,b)          (((conj(a))*(b)).real())
+//#define    cp(a,b)          (((conj(a))*(b)).imag())
+#define    lengthsqrt(a)       dp(a,a)
+#define    rotate0( a,ang)    ((a)*exp( point(0,ang) ))
+#define    rotateA(about,p,ang)   (rotate0(vec(about,p),ang)+about)
+#define    lcm(a,b)                ((a*b)/(__gcd(a,b)))
+#define    reflection0(m,v)         (conj((v)/(m))*(m))
+#define     reflectionA(m,v,p0)     (conj( (vec(p0,v))/(vec(p0,m)) ) * (vec(p0,m)) ) + p0
+//#define     same(p1,p2)               ( dp(  vec(p1,p2),vec(p1,p2)) < eps )
+#define     PT                    complex<double>
+#define outfile freopen("out.out", "w", stdout);
+#define infile  freopen("in.in", "r", stdin);
+#define PI acos(-1)
+typedef  long long     ll ;
+typedef  unsigned long long ull;
+const double eps= (1e-9);
+using namespace std;
+int dcmp(long double a,long double b){   return fabsl(a-b)<=eps ? 0: (a>b)? 1:-1  ;}
+int getBit(int num, int idx) {return ((num >> idx) & 1) == 1;}
+int setBit1(int num, int idx) {return num | (1<<idx);}
+ll setBit0(ll num, int idx) {return num & ~(1ll<<idx);}
+ll flipBit(int num, int idx) {return num ^ (1<<idx);}
+void FS(){ ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);}
+int countNumBit1(int mask) {int ret=0; while (mask)     {mask &= (mask-1);++ret;    }return ret;}
+const int MAX=1500*1500+9;
+int N;
+vector<int> mem(MAX),real_mem(MAX);
+vector< vector< pair<int,int> > > v1(MAX);
+int arr[1509],acc[1509];
+map<int,vector< pair<int,int> >  > mb;
+vector< pair<int,int> > ans;
+int str,ID;
+int solve(int id)
+{
+      int &ret=mem[id];
+    if(ret!=-1)
+        return ret;
+
+    if(id==sz(v1[ID]))
+        return ret=0;
+
+    int fr=v1[ID][id].first;
+    int to=v1[ID][id].second;
+
+    int ans=0;
+
+    int next=lower_bound(all(v1[ID]),mp(to+1,-1))-v1[ID].begin();
+
+    ans=max(ans,1+solve(next));
+    ans=max(ans,solve(id+1));
+
+    return ret=ans;
+}
+int My_id;
+void print(int id)
+{
+    if(id==sz(v1[My_id]))
+        return ;
+    int fr=v1[My_id][id].first;
+    int to=v1[My_id][id].second;
+
+    int next=lower_bound(all(v1[My_id]),mp(to+1,-1))-v1[My_id].begin();
+
+    int p1=1+real_mem[next];
+    int p2=real_mem[id+1];
+     if(p1>p2)
+     {
+         ans.pb(mp(fr,to));
+         print(next);
+     }
+     else
+     {
+         print(id+1);
+     }
+}
+void I(int id)
+{
+    for(int i=0;i<=sz(v1[id]);i++)
+        mem[i]=-1;
+}
+int main()
+{
+    int n;
+    cin>>n;
+    for(int i=1;i<=n;i++)
+        cin>>arr[i];
+    for(int i=1;i<=n;i++)
+    {
+        acc[i]=acc[i-1]+arr[i];
+    }
+    for(int i=1;i<=n;i++)
+    {
+        for(int j=i;j<=n;j++)
+        {
+            int sum= acc[j]-acc[i-1];
+            mb[sum].pb(mp(i,j));
+        }
+    }
+    int id=0;
+    for(auto it=mb.begin();it!=mb.end();it++)
+    {
+        for(int i=0;i<sz((*it).second);i++)
+        {
+            int f=(*it).second[i].first;
+            int s=(*it).second[i].second;
+            v1[id].pb(mp(f,s));
+        }
+        id++;
+    }
+
+    for(int i=0;i<id;i++)
+    {
+        sort(all(v1[i]));
+    }
+    int mx=0;
+    fill(all(mem),-1);
+    for(int i=0;i<id;i++)
+    {
+        ID=i;
+        int ret=solve(0);
+        if(ret>mx)
+        {
+            mx=ret;
+            My_id=ID;
+            real_mem=mem;
+        }
+        I(i);
+    }
+    cout<<mx<<endl;
+   // cout<<My_id<<endl;
+    print(0);
+    for(int i=0;i<sz(ans);i++)
+    {
+       cout<<ans[i].first<<" "<<ans[i].second<<endl;
+    }
+}
+
+
+
