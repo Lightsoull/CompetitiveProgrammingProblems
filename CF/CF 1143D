@@ -1,0 +1,78 @@
+/*
+Since the number of moves doesn't depend on the starting position, we can assume that he starts at position zero.
+We are looking for the smallest number q such that q * L is a multiple of n *k. Equivalently q * L = 0 (mod nk). 
+Intuitively, by thinking in terms of prime factorization, q should be the multiplication of missing primes in L that 
+makes it a multiple of nk. gcd(nk, L) is the greatest common divisor (the shared primes between nk and L). 
+so nk / gcd is the missing ones.
+Try to interpret the condition of divisibility and the gcd in terms of prime factorization
+*/
+
+#include <bits/stdc++.h>
+#define sz(v)   ((int)(v).size())
+#define  all(v)    ((v).begin()),((v).end())
+#define  allr(v)    ((v).rbegin()),((v).rend())
+#define   pb         push_back
+#define   mp         make_pair
+#define   mt         make_tuple
+//#define   Y            imag()
+//#define   X            real()
+#define    clr(v,d)      memset( v, d ,sizeof(v))
+#define   angle(n)      atan2((n.imag()),(n.real()))
+#define   vec(a,b)       ((b)-(a))
+//#define   length(a)      hypot( (a.imag()),(a.real()) )
+#define   normalize(a)      (a)/(length(a))
+//#define    dp(a,b)          (((conj(a))*(b)).real())
+//#define    cp(a,b)          (((conj(a))*(b)).imag())
+#define    lengthsqrt(a)       dp(a,a)
+#define    rotate0( a,ang)    ((a)*exp( point(0,ang) ))
+#define    rotateA(about,p,ang)   (rotate0(vec(about,p),ang)+about)
+#define    lcm(a,b)                ((a*b)/(__gcd(a,b)))
+#define    reflection0(m,v)         (conj((v)/(m))*(m))
+#define     reflectionA(m,v,p0)     (conj( (vec(p0,v))/(vec(p0,m)) ) * (vec(p0,m)) ) + p0
+//#define     same(p1,p2)               ( dp(  vec(p1,p2),vec(p1,p2)) < eps )
+#define     PT                    complex<double>
+#define outfile freopen("out.out", "w", stdout);
+#define infile  freopen("in.in", "r", stdin);
+#define PI acos(-1)
+#define scani(n)  scanf("%d",&n)
+//#define scans(st) scanf("%s",st)
+#define gc getchar_unlocked
+typedef  long long     ll ;
+typedef  unsigned long long ull;
+const double eps= (1e-9);
+using namespace std;
+int dcmp(long double a,long double b){   return fabsl(a-b)<=eps ? 0: (a>b)? 1:-1  ;}
+int getBit(int num, int idx) {return ((num >> idx) & 1) == 1;}
+int setBit1(int num, int idx) {return num | (1<<idx);}
+ll setBit0(ll num, int idx) {return num & ~(1ll<<idx);}
+ll flipBit(int num, int idx) {return num ^ (1<<idx);}
+void FS(){ ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);}
+const int inf=10000000;
+ll n,k,a,b;
+int main()
+{
+    cin>>n>>k>>a>>b;
+    ll v[6];
+    ll mi=inf,mx=-inf;
+    for(int x=0;x<=n;x++)
+    {
+        v[0]= x*k-a-b;
+        v[1]= x*k+a-b;
+        v[2]= x*k-a+b;
+        v[3]= x*k+a+b;
+
+        for(int w=0;w<4;w++)
+        {
+             if(v[w]<=0||v[w]>n*k)
+                continue;
+
+             mi=min(mi,__gcd(v[w],n*k));
+             mx=max(mx,__gcd(v[w],n*k));
+
+        }
+    }
+
+
+    cout<<(n*k)/mx<<" "<<(n*k)/mi<<endl;
+}
+
