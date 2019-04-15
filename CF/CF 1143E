@@ -1,0 +1,154 @@
+#include <bits/stdc++.h>
+#define sz(v)   ((int)(v).size())
+#define  all(v)    ((v).begin()),((v).end())
+#define  allr(v)    ((v).rbegin()),((v).rend())
+#define   pb         push_back
+#define   mp         make_pair
+#define   mt         make_tuple
+//#define   Y            imag()
+//#define   X            real()
+#define    clr(v,d)      memset( v, d ,sizeof(v))
+#define   angle(n)      atan2((n.imag()),(n.real()))
+#define   vec(a,b)       ((b)-(a))
+//#define   length(a)      hypot( (a.imag()),(a.real()) )
+#define   normalize(a)      (a)/(length(a))
+//#define    dp(a,b)          (((conj(a))*(b)).real())
+//#define    cp(a,b)          (((conj(a))*(b)).imag())
+#define    lengthsqrt(a)       dp(a,a)
+#define    rotate0( a,ang)    ((a)*exp( point(0,ang) ))
+#define    rotateA(about,p,ang)   (rotate0(vec(about,p),ang)+about)
+#define    lcm(a,b)                ((a*b)/(__gcd(a,b)))
+#define    reflection0(m,v)         (conj((v)/(m))*(m))
+#define     reflectionA(m,v,p0)     (conj( (vec(p0,v))/(vec(p0,m)) ) * (vec(p0,m)) ) + p0
+//#define     same(p1,p2)               ( dp(  vec(p1,p2),vec(p1,p2)) < eps )
+#define     PT                    complex<double>
+#define outfile freopen("out.out", "w", stdout);
+#define infile  freopen("in.in", "r", stdin);
+#define PI acos(-1)
+#define scani(n)  scanf("%d",&n)
+//#define scans(st) scanf("%s",st)
+#define gc getchar_unlocked
+typedef  long long     ll ;
+typedef  unsigned long long ull;
+const double eps= (1e-9);
+using namespace std;
+int dcmp(long double a,long double b){   return fabsl(a-b)<=eps ? 0: (a>b)? 1:-1  ;}
+int getBit(int num, int idx) {return ((num >> idx) & 1) == 1;}
+int setBit1(int num, int idx) {return num | (1<<idx);}
+ll setBit0(ll num, int idx) {return num & ~(1ll<<idx);}
+ll flipBit(int num, int idx) {return num ^ (1<<idx);}
+void FS(){ ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);}
+const int N=200009;
+int a[N],arr[N],tree[4*N],pre[N],lastoccur[N],num[N],index[N],dp[N][29];
+int n,m;
+void build(int s=0,int e=m-1,int p=1)
+{
+    if(s==e)
+    {
+        tree[p]=a[s];
+        return;
+    }
+    int mid=(s+e)/2;
+    build(s,mid,p*2);
+    build(mid+1,e,p*2+1);
+    tree[p]=max(tree[p*2],tree[p*2+1]);
+}
+int query(int a,int b,int s=0,int e=m-1,int p=1)
+{
+    if(b<s||a>e||b<a)
+        return -1;
+    if(s>=a&&e<=b)
+    {
+        return tree[p];
+    }
+    int mid=(s+e)/2;
+    return max(query(a,b,s,mid,p*2),query(a,b,mid+1,e,p*2+1));
+}
+void binary_lifting()
+{
+    for(int i=0;i<m;i++)
+        dp[i][0]=pre[i];
+
+    for(int j=1;(1<<j)<m;j++)
+    {
+        for(int i=0;i<m;i++)
+        {
+            if(dp[i][j-1]!=-1)
+            dp[i][j]= dp[dp[i][j-1]][j-1];
+            else
+            dp[i][j]=-1;
+        }
+    }
+}
+int query2(int k,int no)
+{
+    int mx= 20;
+
+    for(int i=mx;i>=0;i--)
+    {
+        if((1<<i)<=k&&no!=-1)
+        {
+            k-=(1<<i);
+            no=dp[no][i];
+        }
+    }
+    return no;
+}
+int main()
+{
+
+   int q;
+   cin>>n>>m>>q;
+
+   for(int i=0;i<n;i++)
+   {
+       int no;
+       cin>>no;
+       index[no]=i;
+   }
+
+   for(int i=0;i<m;i++)
+   {
+       int no;
+       cin>>no;
+       arr[i]=index[no];
+   }
+   clr(lastoccur,-1);
+   clr(pre,-1);
+
+   for(int i=0;i<m;i++)
+   {
+       int no= (arr[i]==0? n-1:arr[i]-1);
+
+       if(lastoccur[no]!=-1)
+       {
+           pre[i]=lastoccur[no];
+       }
+
+       lastoccur[arr[i]]=i;
+   }
+
+   binary_lifting();
+
+
+   for(int i=0;i<m;i++)
+   {
+       a[i]=query2(n-1,i);
+   }
+
+   build();
+
+   while(q--)
+   {
+       int l,r;
+       cin>>l>>r;
+       l--;
+       r--;
+
+       int ret=query(l,r);
+       if(ret>=l||n==1)
+        cout<<'1';
+       else
+        cout<<'0';
+   }
+}
