@@ -1,0 +1,150 @@
+//#include "grader.h"
+#include <bits/stdc++.h>
+#define sz(v)   ((int)(v).size())
+#define  all(v)    ((v).begin()),((v).end())
+#define  allr(v)    ((v).rbegin()),((v).rend())
+#define   pb         push_back
+#define   mp         make_pair
+#define   mt         make_tuple
+//#define   Y            imag()
+//#define   X            real()
+#define    clr(v,d)      memset( v, d ,sizeof(v))
+#define   angle(n)      atan2((n.imag()),(n.real()))
+#define   vec(a,b)       ((b)-(a))
+//#define   length(a)      hypot( (a.imag()),(a.real()) )
+#define   normalize(a)      (a)/(length(a))
+//#define    dp(a,b)          (((conj(a))*(b)).real())
+//#define    cp(a,b)          (((conj(a))*(b)).imag())
+#define    lengthsqrt(a)       dp(a,a)
+#define    rotate0( a,ang)    ((a)*exp( point(0,ang) ))
+#define    rotateA(about,p,ang)   (rotate0(vec(about,p),ang)+about)
+#define    reflection0(m,v)         (conj((v)/(m))*(m))
+#define     reflectionA(m,v,p0)     (conj( (vec(p0,v))/(vec(p0,m)) ) * (vec(p0,m)) ) + p0
+//#define     same(p1,p2)               ( dp(  vec(p1,p2),vec(p1,p2)) < eps )
+#define     PT                    complex<double>
+#define outfile freopen("out.out", "w", stdout);
+#define infile  freopen("in.in", "r", stdin);
+#define PI acos(-1)
+typedef  long long     ll ;
+typedef  unsigned long long ull;
+const double eps= (1e-9);
+using namespace std;
+int dcmp(long double a,long double b){   return fabsl(a-b)<=eps ? 0: (a>b)? 1:-1  ;}
+int getBit(int num, int idx) {return ((num >> idx) & 1) == 1;}
+int setBit1(int num, int idx) {return num | (1<<idx);}
+ll setBit0(ll num, int idx) {return num & ~(1ll<<idx);}
+ll flipBit(int num, int idx) {return num ^ (1<<idx);}
+void FS(){ ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);}
+const int N=100009;
+vector< vector<int> > v(N),v2(N),v3(N),vv(N);
+vector< pair<int,int> > v1;
+int n,m,vis[N],indeg[N],comp[N],mark[N],a[N],b[N],add[N],tim,str[N],en[N],com;
+void dfs(int no)
+{
+    str[no]=tim++;
+    for(int i=0;i<sz(v[no]);i++)
+    {
+        int nw=v[no][i];
+        if(str[nw]==-1)
+        {
+            v1.pb(mp(no,nw));
+            dfs(nw);
+        }
+        else if(en[nw]!=-1)
+            v1.pb(mp(no,nw));
+    }
+    en[no]=tim++;
+}
+void dfs2(int no)
+{
+    vis[no]=1;
+    for(int i=0;i<sz(v2[no]);i++)
+    {
+        int nw=v2[no][i];
+        if(vis[nw])
+            continue;
+        dfs2(nw);
+    }
+    v3[comp[no]].pb(no);
+}
+void dfs3(int no)
+{
+    comp[no]=com;
+    vis[no]=1;
+    for(int i=0;i<sz(vv[no]);i++)
+    {
+        int nw=vv[no][i];
+        if(vis[nw])
+            continue;
+        dfs3(nw);
+    }
+}
+int main()
+{
+    cin>>n>>m;
+    for(int i=0;i<m;i++)
+    {
+        int f,t;
+        cin>>f>>t;
+        v[f].pb(t);
+        vv[f].pb(t);
+        vv[t].pb(f);
+        a[i]=f;
+        b[i]=t;
+    }
+    clr(str,-1);
+    clr(en,-1);
+    for(int i=1;i<=n;i++)
+    {
+        if(str[i]==-1)
+        {
+            dfs(i);
+        }
+    }
+    com=0;
+    for(int i=1;i<=n;i++)
+    {
+        if(vis[i]==0)
+        {
+            com++;
+            dfs3(i);
+        }
+    }
+    for(int i=0;i<sz(v1);i++)
+    {
+        int f=v1[i].first;
+        int t=v1[i].second;
+        v2[f].pb(t);
+        indeg[t]++;
+    }
+    clr(vis,0);
+    int cnt=0;
+    for(int i=1;i<=n;i++)
+    {
+        if(indeg[i]==0)
+        {
+            dfs2(i);
+        }
+    }
+    int id=1;
+    for(int i=1;i<=com;i++)
+    {
+        reverse(all(v3[i]));
+        for(int j=0;j<sz(v3[i]);j++)
+        {
+            int nw=v3[i][j];
+            mark[nw]=id++;
+        }
+        cnt+= sz(v3[i])-1;
+    }
+    for(int i=0;i<m;i++)
+    {
+        if(mark[a[i]]>mark[b[i]])
+        {
+            add[comp[a[i]]]=1;
+        }
+    }
+    for(int i=0;i<=com;i++)
+        cnt+= add[i];
+    cout<<cnt<<endl;
+}
